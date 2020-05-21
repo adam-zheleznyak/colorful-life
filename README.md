@@ -8,4 +8,4 @@ The Colorful Game of Life has the same rules as Conway's Game of Life, except th
 
 The idea is to make Conway's Game of Life look even more lifelike by giving each cell some representation of its "genetics." In the long run, some colors will be naturally selected and will often form colonies. Adding color variation is a way to represent natural mutations that might occur over time.
 
-Download and run colorful_life.py in order to see a randomized game. The code also includes many customization options and ways to download animations of the game.
+Download and run `colorful_life.py` in order to see a randomized game. The code also includes many customization options and ways to download animations of the game.
