@@ -313,8 +313,3 @@ def save_as_mp4(colored_grid, number_of_frames, filename, color_variation=0.05, 
 	"""
 	
 	colorful_animation_limited(colored_grid, number_of_frames, color_variation=color_variation, hard_boundary=hard_boundary, interval=interval, cell_size=cell_size, show=False).save(filename, writer='ffmpeg', savefig_kwargs={'facecolor': 'black'})
-
-# Example code:
-grid = random_colors(random_grid(25, 25))
-colorful_animation(grid) 
-#save_as_gif(grid, 100, "example.gif") #can take a minute and will only start after the animation window from the previous line is closed
