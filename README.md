@@ -4,6 +4,7 @@ Reimagining Conway's Game of Life with color.
 ![example.gif](https://github.com/adam-zheleznyak/colorful-life/blob/master/example.gif?raw=true)
 
 [YouTube Montage](https://youtu.be/RG0_Fw-aKpY)
+
 [YouTube Montage of Alternative Rulesets](https://youtu.be/qSU_csTgVIA)
 
 ## The Game
