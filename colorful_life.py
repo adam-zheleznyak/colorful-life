@@ -77,7 +77,7 @@ def random_colors(grid):
 	
 	return [[Hue(random()) if cell else None for cell in row] for row in grid]
 
-def colorful_life_step(colored_grid, color_variation=0.05, hard_boundary=True):
+def colorful_life_step(colored_grid, color_variation=0.05, hard_boundary=True, rule=[[3],[2,3]]):
 	"""
 	Runs a step for The Colorful Game of Life.
 	
@@ -87,6 +87,7 @@ def colorful_life_step(colored_grid, color_variation=0.05, hard_boundary=True):
 	colored_grid (2D list of Hue objects): The grid that should be stepped through
 	color_variation (float): A newly born cell will deviate from its color randomly up or down, with this amount being the maximum possible deviation.
 	hard_boundary (bool): Setting this to False will identify opposite edges so that cells touching the boundary will communicate with cells on the other side of the grid.
+	rule (2D list of integers): The first set of elements is how many neighbors leads to a birth, and the second is how many neighbors lead to a cell surviving.
 	
 	Returns:
 	2D list of Hue objects
@@ -103,12 +104,12 @@ def colorful_life_step(colored_grid, color_variation=0.05, hard_boundary=True):
 					live_neighbors = [colored_grid[(j+a) % height][(i+b) % width] for a in (-1,0,1) for b in (-1,0,1) if ((a is not 0 or b is not 0) and colored_grid[(j+a) % height][(i+b) % width])]
 					neighbor_count = len(live_neighbors)
 					if colored_grid[j][i]:
-						if neighbor_count is 2 or neighbor_count is 3:
+						if neighbor_count in rule[1]:
 							row.append(colored_grid[j][i])
 						else:
 							row.append(None)
 					else:
-						if neighbor_count is 3:
+						if neighbor_count in rule[0]:
 							hue = average_hue(live_neighbors)
 							row.append(Hue(hue.value+uniform(-color_variation, color_variation)))
 						else:
@@ -133,12 +134,12 @@ def colorful_life_step(colored_grid, color_variation=0.05, hard_boundary=True):
 						
 					neighbor_count = len(live_neighbors)
 					if colored_grid[j][i]:
-						if neighbor_count is 2 or neighbor_count is 3:
+						if neighbor_count in rule[1]:
 							row.append(colored_grid[j][i])
 						else:
 							row.append(None)
 					else:
-						if neighbor_count is 3:
+						if neighbor_count in rule[0]:
 							hue = average_hue(live_neighbors)
 							row.append(Hue(hue.value+uniform(-color_variation, color_variation)))
 						else:
@@ -152,12 +153,12 @@ def colorful_life_step(colored_grid, color_variation=0.05, hard_boundary=True):
 				live_neighbors = [colored_grid[j+a][i+b] for a in (-1,0,1) for b in (-1,0,1) if ((a is not 0 or b is not 0) and ((j+a) % height is j+a) and ((i+b) % width is i+b) and colored_grid[j+a][i+b])]
 				neighbor_count = len(live_neighbors)
 				if colored_grid[j][i]:
-					if neighbor_count is 2 or neighbor_count is 3:
+					if neighbor_count in rule[1]:
 						row.append(colored_grid[j][i])
 					else:
 						row.append(None)
 				else:
-					if neighbor_count is 3:
+					if neighbor_count in rule[0]:
 						hue = average_hue(live_neighbors)
 						row.append(Hue(hue.value+uniform(-color_variation, color_variation)))
 					else:
@@ -165,7 +166,7 @@ def colorful_life_step(colored_grid, color_variation=0.05, hard_boundary=True):
 			next_grid.append(row)
 		return next_grid
 
-def colorful_animation(colored_grid, color_variation=0.05, hard_boundary=True, interval=300, cell_size=0.2, show=True):
+def colorful_animation(colored_grid, color_variation=0.05, hard_boundary=True, rule=[[3],[2,3]], interval=300, cell_size=0.2, show=True):
 	"""
 	This will create an animation of The Colorful Game of Life using Matplotlib. The animation will run forever until closed.
 	
@@ -173,6 +174,7 @@ def colorful_animation(colored_grid, color_variation=0.05, hard_boundary=True, i
 	colored_grid (2D list of Hue objects): The starting grid.
 	color_variation (float): A newly born cell will deviate from its color randomly up or down, with this amount being the maximum possible deviation.
 	hard_boundary (bool): Setting this to False will identify opposite edges so that cells touching the boundary will communicate with cells on the other side of the grid.
+	rule (2D list of integers): The first set of elements is how many neighbors leads to a birth, and the second is how many neighbors lead to a cell surviving.
 	interval (int): The number of milliseconds each step should take in the animation.
 	cell_size (float): The number of inches per side of each cell.
 	show (bool): If this is True, the animation will open.
@@ -200,20 +202,20 @@ def colorful_animation(colored_grid, color_variation=0.05, hard_boundary=True, i
 		plt.cla()
 		ax.imshow(grid_to_array(colored_grid), cmap=plt.cm.hsv, norm=clrs.Normalize(vmin=0,vmax=1), interpolation='nearest')
 	
-	def frame_generator(colored_grid, color_variation, hard_boundary):
-		yield colored_grid #for some reason, this generator is being called once before the animation start, so this is to account for that
+	def frame_generator(colored_grid, color_variation, hard_boundary, rule):
+		yield colored_grid #for some reason, this generator is being called once before the animation starts, so this is to account for that
 		while True:
 			yield colored_grid
-			colored_grid = colorful_life_step(colored_grid, color_variation, hard_boundary)
+			colored_grid = colorful_life_step(colored_grid, color_variation, hard_boundary, rule)
 	
-	anim = anm.FuncAnimation(fig, animate, frames=frame_generator(colored_grid, color_variation, hard_boundary), interval=interval)
+	anim = anm.FuncAnimation(fig, animate, frames=frame_generator(colored_grid, color_variation, hard_boundary, rule), interval=interval)
 	
 	if show:
 		plt.show()
 	
 	return anim
 
-def colorful_animation_limited(colored_grid, number_of_frames, color_variation=0.05, hard_boundary=True, interval=300, cell_size=0.2, show=True):
+def colorful_animation_limited(colored_grid, number_of_frames, color_variation=0.05, hard_boundary=True, rule=[[3],[2,3]], interval=300, cell_size=0.2, show=True):
 	"""
 	This will create an animation of The Colorful Game of Life using Matplotlib. The animation will run for a limited number of steps and then restart.
 	
@@ -222,6 +224,7 @@ def colorful_animation_limited(colored_grid, number_of_frames, color_variation=0
 	number_of_frames (int): How many steps until the animation restarts.
 	color_variation (float): A newly born cell will deviate from its color randomly up or down, with this amount being the maximum possible deviation.
 	hard_boundary (bool): Setting this to False will identify opposite edges so that cells touching the boundary will communicate with cells on the other side of the grid.
+	rule (2D list of integers): The first set of elements is how many neighbors leads to a birth, and the second is how many neighbors lead to a cell surviving.
 	interval (int): The number of milliseconds each step should take in the animation.
 	cell_size (float): The number of inches per side of each cell.
 	show (bool): If this is True, the animation will open.
@@ -239,7 +242,7 @@ def colorful_animation_limited(colored_grid, number_of_frames, color_variation=0
 	
 	for i in range(number_of_frames):
 		frames.append(colored_grid)
-		colored_grid = colorful_life_step(colored_grid, color_variation, hard_boundary)
+		colored_grid = colorful_life_step(colored_grid, color_variation, hard_boundary, rule)
 	
 	height = len(colored_grid)
 	width = len(colored_grid[0])
@@ -262,7 +265,7 @@ def colorful_animation_limited(colored_grid, number_of_frames, color_variation=0
 	
 	return anim
 
-def save_as_html(colored_grid, number_of_frames, filename, color_variation=0.05, hard_boundary=True, cell_size=0.2, interval=300):
+def save_as_html(colored_grid, number_of_frames, filename, color_variation=0.05, hard_boundary=True, rule=[[3],[2,3]], cell_size=0.2, interval=300):
 	"""
 	Saves the animation as an HTML page.
 	
@@ -272,13 +275,15 @@ def save_as_html(colored_grid, number_of_frames, filename, color_variation=0.05,
 	filename (str): What the HTML file should be saved as.
 	color_variation (float): A newly born cell will deviate from its color randomly up or down, with this amount being the maximum possible deviation.
 	hard_boundary (bool): Setting this to False will identify opposite edges so that cells touching the boundary will communicate with cells on the other side of the grid.
+	rule (2D list of integers): The first set of elements is how many neighbors leads to a birth, and the second is how many neighbors lead to a cell surviving.
 	interval (int): The number of milliseconds each step should take in the animation.
 	cell_size (float): The number of inches per side of each cell.
 	"""
 	
-	colorful_animation_limited(colored_grid, number_of_frames, color_variation=color_variation, hard_boundary=hard_boundary, interval=interval, cell_size=cell_size, show=False).save(filename, writer='html', savefig_kwargs={'facecolor': 'black'})
+	colorful_animation_limited(colored_grid, number_of_frames, color_variation=color_variation, hard_boundary=hard_boundary, rule=rule, interval=interval, cell_size=cell_size, show=False).save(filename, writer='html', savefig_kwargs={'facecolor': 'black'})
+	plt.close()
 
-def save_as_gif(colored_grid, number_of_frames, filename, color_variation=0.05, hard_boundary=True, cell_size=0.2, interval=300):
+def save_as_gif(colored_grid, number_of_frames, filename, color_variation=0.05, hard_boundary=True, rule=[[3],[2,3]], cell_size=0.2, interval=300):
 	"""
 	Requires the package 'imagemagick' to be installed.
 	
@@ -290,13 +295,15 @@ def save_as_gif(colored_grid, number_of_frames, filename, color_variation=0.05, 
 	filename (str): What the HTML file should be saved as.
 	color_variation (float): A newly born cell will deviate from its color randomly up or down, with this amount being the maximum possible deviation.
 	hard_boundary (bool): Setting this to False will identify opposite edges so that cells touching the boundary will communicate with cells on the other side of the grid.
+	rule (2D list of integers): The first set of elements is how many neighbors leads to a birth, and the second is how many neighbors lead to a cell surviving.
 	interval (int): The number of milliseconds each step should take in the animation.
 	cell_size (float): The number of inches per side of each cell.
 	"""
 	
-	colorful_animation_limited(colored_grid, number_of_frames, color_variation=color_variation, hard_boundary=hard_boundary, interval=interval, cell_size=cell_size, show=False).save(filename, writer='imagemagick', savefig_kwargs={'facecolor': 'black'})
+	colorful_animation_limited(colored_grid, number_of_frames, color_variation=color_variation, hard_boundary=hard_boundary, rule=rule, interval=interval, cell_size=cell_size, show=False).save(filename, writer='imagemagick', savefig_kwargs={'facecolor': 'black'})
+	plt.close()
 
-def save_as_mp4(colored_grid, number_of_frames, filename, color_variation=0.05, hard_boundary=True, cell_size=0.2, interval=300):
+def save_as_mp4(colored_grid, number_of_frames, filename, color_variation=0.05, hard_boundary=True, rule=[[3],[2,3]], cell_size=0.2, interval=300):
 	"""
 	Requires the package 'ffmpeg' to be installed.
 	
@@ -308,8 +315,10 @@ def save_as_mp4(colored_grid, number_of_frames, filename, color_variation=0.05, 
 	filename (str): What the HTML file should be saved as.
 	color_variation (float): A newly born cell will deviate from its color randomly up or down, with this amount being the maximum possible deviation.
 	hard_boundary (bool): Setting this to False will identify opposite edges so that cells touching the boundary will communicate with cells on the other side of the grid.
+	rule (2D list of integers): The first set of elements is how many neighbors leads to a birth, and the second is how many neighbors lead to a cell surviving.
 	interval (int): The number of milliseconds each step should take in the animation.
 	cell_size (float): The number of inches per side of each cell.
 	"""
 	
-	colorful_animation_limited(colored_grid, number_of_frames, color_variation=color_variation, hard_boundary=hard_boundary, interval=interval, cell_size=cell_size, show=False).save(filename, writer='ffmpeg', savefig_kwargs={'facecolor': 'black'})
+	colorful_animation_limited(colored_grid, number_of_frames, color_variation=color_variation, hard_boundary=hard_boundary, rule=rule, interval=interval, cell_size=cell_size, show=False).save(filename, writer='ffmpeg', savefig_kwargs={'facecolor': 'black'})
+	plt.close()
