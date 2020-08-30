@@ -291,7 +291,7 @@ def save_as_gif(colored_grid, number_of_frames, filename, color_variation=0.05, 
 	"""
 	Requires the package 'imagemagick' to be installed.
 	
-	Saves the animation as an HTML page.
+	Saves the animation as a gif.
 	
 	Parameters:
 	colored_grid (2D list of Hue objects): The starting grid.
@@ -311,7 +311,7 @@ def save_as_mp4(colored_grid, number_of_frames, filename, color_variation=0.05, 
 	"""
 	Requires the package 'ffmpeg' to be installed.
 	
-	Saves the animation as an HTML page.
+	Saves the animation as an mp4 video.
 	
 	Parameters:
 	colored_grid (2D list of Hue objects): The starting grid.
