@@ -1,3 +1,7 @@
+# The Colorful Game of Life
+# Created by Adam Zheleznyak
+# https://github.com/adam-zheleznyak/colorful-life
+
 import math
 from random import random
 from random import uniform
